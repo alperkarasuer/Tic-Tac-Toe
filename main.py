@@ -7,15 +7,18 @@ class Board:
         self.width = width
         self.height = height
         self.isX = 'x'
+        self.winner = None
+        self.draw = None
+
 
         # Board status - None = Empty, 0 = 0, 1 = X
         self.boardStatus = [[None] * 3, [None] * 3, [None] * 3]
 
         gameDisplay.fill(backgroundColor)
-        self.drawBoard()
+        self.showBoard()
 
     # Draw the game board
-    def drawBoard(self):
+    def showBoard(self):
         pygame.draw.line(gameDisplay, self.BLACK, (self.width/3, 0), (self.width/3, self.height), 15)
         pygame.draw.line(gameDisplay, self.BLACK, (2*self.width/3, 0), (2*self.width/3, self.height), 15)
         pygame.draw.line(gameDisplay, self.BLACK, (0, self.height/3), (self.width, self.height/3), 15)
@@ -66,6 +69,7 @@ class Board:
         # Make the desired move
         if (row and col and self.boardStatus[row - 1][col - 1] is None):
             self.playMove(row, col)
+            self.check_win()
 
     #Row and column definitions are wrong !!!
     def playMove(self, row, col):
@@ -108,6 +112,55 @@ class Board:
             self.isX = 'x'
         pygame.display.update()
 
+    def draw_status(self):
+        if self.winner is None:
+            message = self.isX.upper() + "'s Turn"
+        else:
+            message = self.winner.upper() + " won !"
+        if self.draw:
+            message = "Game Draw !"
+
+        print(message)
+
+    def check_win(self):
+
+        # Check for winning rows
+        # Checks if entire row has the same mark, X or O. Initial none cases pose a problem here
+        # Which is solved with the "is not None" part
+        # Also draws a line on the winning row
+        for row in range(0, 3):
+            if ((self.boardStatus[row][0] == self.boardStatus[row][1] == self.boardStatus[row][2]) and (self.boardStatus[row][0] is not None)):
+                self.winner = self.boardStatus[row][0]
+                pygame.draw.line(gameDisplay, (250, 0, 0),
+                             (0, (row + 1) * self.height / 3 - self.height / 6),
+                             (self.width, (row + 1) * self.height / 3 - self.height / 6),
+                             4)
+                break
+
+        # Same logic with the rows
+        for col in range(0, 3):
+            if ((self.boardStatus[0][col] == self.boardStatus[1][col] == self.boardStatus[2][col]) and (self.boardStatus[0][col] is not None)):
+                self.winner = self.boardStatus[0][col]
+                pygame.draw.line(gameDisplay, (250, 0, 0), ((col + 1) * self.width / 3 - self.width / 6, 0),
+                             ((col + 1) * self.width / 3 - self.width / 6, self.height), 4)
+                break
+
+        # Pretty much the same with row and column
+        if (self.boardStatus[0][0] == self.boardStatus[1][1] == self.boardStatus[2][2]) and (self.boardStatus[0][0] is not None):
+            # Main diagonal
+            self.winner = self.boardStatus[0][0]
+            pygame.draw.line(gameDisplay, (250, 70, 70), (50, 50), (350, 350), 4)
+
+        if (self.boardStatus[0][2] == self.boardStatus[1][1] == self.boardStatus[2][0]) and (self.boardStatus[0][2] is not None):
+            # Off diagonal
+            self.winner = self.boardStatus[0][2]
+            pygame.draw.line(gameDisplay, (250, 70, 70), (350, 50), (50, 350), 4)
+
+            # Explain
+        if (all([all(row) for row in self.boardStatus]) and self.winner is None):
+            self.draw = True
+
+        self.draw_status()
 
 
 
@@ -138,7 +191,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        if pygame.mouse.get_pressed()[0]:
+        if event.type == MOUSEBUTTONDOWN:
             gameBoard.user_click()
 
 
