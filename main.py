@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+import time
 
 class Board:
     def __init__(self, width, height):
@@ -17,7 +18,15 @@ class Board:
         gameDisplay.fill(backgroundColor)
         self.showBoard()
 
-    # Draw the game board
+    def reset_game(self):
+        self.isX = 'x'
+        self.draw = False
+        self.winner = None
+        self.boardStatus = [[None] * 3, [None] * 3, [None] * 3]
+        gameDisplay.fill(backgroundColor)
+        self.showBoard()
+
+        # Draw the game board
     def showBoard(self):
         pygame.draw.line(gameDisplay, self.BLACK, (self.width/3, 0), (self.width/3, self.height), 15)
         pygame.draw.line(gameDisplay, self.BLACK, (2*self.width/3, 0), (2*self.width/3, self.height), 15)
@@ -130,31 +139,37 @@ class Board:
         # Also draws a line on the winning row
         for row in range(0, 3):
             if ((self.boardStatus[row][0] == self.boardStatus[row][1] == self.boardStatus[row][2]) and (self.boardStatus[row][0] is not None)):
-                self.winner = self.boardStatus[row][0]
                 pygame.draw.line(gameDisplay, (250, 0, 0),
                              (0, (row + 1) * self.height / 3 - self.height / 6),
                              (self.width, (row + 1) * self.height / 3 - self.height / 6),
                              4)
+                pygame.display.update()
+                self.winner = self.boardStatus[row][0]
                 break
 
         # Same logic with the rows
         for col in range(0, 3):
             if ((self.boardStatus[0][col] == self.boardStatus[1][col] == self.boardStatus[2][col]) and (self.boardStatus[0][col] is not None)):
-                self.winner = self.boardStatus[0][col]
                 pygame.draw.line(gameDisplay, (250, 0, 0), ((col + 1) * self.width / 3 - self.width / 6, 0),
                              ((col + 1) * self.width / 3 - self.width / 6, self.height), 4)
+                pygame.display.update()
+                self.winner = self.boardStatus[0][col]
+
                 break
 
         # Pretty much the same with row and column
         if (self.boardStatus[0][0] == self.boardStatus[1][1] == self.boardStatus[2][2]) and (self.boardStatus[0][0] is not None):
             # Main diagonal
-            self.winner = self.boardStatus[0][0]
             pygame.draw.line(gameDisplay, (250, 70, 70), (50, 50), (350, 350), 4)
+            pygame.display.update()
+            self.winner = self.boardStatus[0][0]
+
 
         if (self.boardStatus[0][2] == self.boardStatus[1][1] == self.boardStatus[2][0]) and (self.boardStatus[0][2] is not None):
             # Off diagonal
-            self.winner = self.boardStatus[0][2]
             pygame.draw.line(gameDisplay, (250, 70, 70), (350, 50), (50, 350), 4)
+            pygame.display.update()
+            self.winner = self.boardStatus[0][2]
 
             # Explain
         if (all([all(row) for row in self.boardStatus]) and self.winner is None):
@@ -193,6 +208,10 @@ while running:
 
         if event.type == MOUSEBUTTONDOWN:
             gameBoard.user_click()
+
+            if (gameBoard.winner or gameBoard.draw):
+                time.sleep(3)
+                gameBoard.reset_game()
 
 
     pygame.display.update()
