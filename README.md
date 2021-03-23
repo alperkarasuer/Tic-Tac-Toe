@@ -1,1 +1,1 @@
-# Tic-Tac-Toe-but-You-Can-t-Win
+# Tic-Tac-Toe
