@@ -171,13 +171,14 @@ class Board:
             pygame.display.update()
             self.winner = self.boardStatus[0][2]
 
-            # Explain
+            # If all elements in a row is different from None, all() function
+            # returns true. List comprehension applies this to each row thus
+            # return [True,True,True] which in turn becomes True when given as a
+            # argument to another all(), hence this checks whether entire board is filled or not.
         if (all([all(row) for row in self.boardStatus]) and self.winner is None):
             self.draw = True
 
         self.draw_status()
-
-
 
 # Images
 xImg = pygame.image.load("images/x.png")  # 91x86
@@ -190,7 +191,7 @@ pygame.init()
 # Display and some settings
 screenSize = (360, 360)
 backgroundColor = (255, 255, 255)
-gameName = 'Tic-Tac-Toe but You Can\'t Win'
+gameName = 'Tic-Tac-Toe'
 
 # Initialize display
 gameDisplay = pygame.display.set_mode(screenSize)
@@ -209,6 +210,7 @@ while running:
         if event.type == MOUSEBUTTONDOWN:
             gameBoard.user_click()
 
+            # When game ends, wait three seconds and reset
             if (gameBoard.winner or gameBoard.draw):
                 time.sleep(3)
                 gameBoard.reset_game()
